@@ -13,17 +13,16 @@ export default function Home() {
   };
 
   const joinRoom = () => {
-    if (roomId) router.push(`/${roomId}`);
-    else {
+    if (!roomId) {
       alert("Please provide a valid room id");
     }
+    router.push(`/${roomId}`);
   };
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="border border-success rounded-md p-6 relative">
         <div
-          style={{ backgroundColor: "#1D232A" }}
-          className="flex items-center justify-center border border-success absolute top-[-15px] w-8 h-8 rounded-full right-[-16px]"
+          className="flex items-center bg-special justify-center border border-success absolute top-[-15px] w-8 h-8 rounded-full right-[-16px]"
         >
           <div className="w-4 h-4 bg-red-800 rounded-full animate-pulse"></div>
         </div>

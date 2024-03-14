@@ -8,13 +8,16 @@ import usePlayer from "@/hooks/usePlayer";
 
 import Player from "@/component/Player";
 import Bottom from "@/component/Bottom";
+import Chat from "@/component/Chat";
 
 import styles from "@/styles/room.module.css";
 import { useRouter } from "next/router";
 
 const Room = () => {
   const socket = useSocket();
-  const { roomId } = useRouter().query;
+  const {
+    query: { roomId },
+  } = useRouter();
   const { peer, myId } = usePeer();
   const { stream } = useMediaStream();
   const {
@@ -25,9 +28,12 @@ const Room = () => {
     toggleAudio,
     toggleVideo,
     leaveRoom,
+    shareScreen,
+    sendMessage
   } = usePlayer(myId, roomId, peer);
 
   const [users, setUsers] = useState([]);
+  const [chatIsOpen, setChatIsOpen] = useState(false);
 
   useEffect(() => {
     if (!socket || !peer || !stream) return;
@@ -144,21 +150,27 @@ const Room = () => {
     }
   };
 
+  const chatOpen = () => {
+    setChatIsOpen(!chatIsOpen);
+  };
+
   return (
-    <>
+    <div className="h-screen w-full">
       <div>
-        {playerHighlighted && (
+        {playerHighlighted ? (
           <Player
             url={playerHighlighted.url}
             muted={playerHighlighted.muted}
             playing={playerHighlighted.playing}
             isActive
           />
+        ) : (
+          <div className="skeleton w-[400px] h-[400px]"></div>
         )}
       </div>
       <div className={styles.inActivePlayerContainer}>
         {Object.keys(nonHighlightedPlayers).map((playerId) => {
-          const { url, muted, playing } = nonHighlightedPlayers[playerId];
+          const { url, muted, playing } = nonHighlightedPlayers[playerId] || {};
           return (
             <Player
               key={playerId}
@@ -169,7 +181,9 @@ const Room = () => {
             />
           );
         })}
+        {chatIsOpen ? <Chat sendMessage={sendMessage} /> : null}
       </div>
+
       <Bottom
         muted={playerHighlighted?.muted}
         playing={playerHighlighted?.playing}
@@ -177,8 +191,10 @@ const Room = () => {
         toggleVideo={toggleVideo}
         leaveRoom={leaveRoom}
         copyInviteLink={copyInviteLink}
+        shareScreen={shareScreen}
+        chatOpen={chatOpen}
       />
-    </>
+    </div>
   );
 };
 
